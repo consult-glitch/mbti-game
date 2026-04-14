@@ -512,6 +512,89 @@ body::after {
   font-family: var(--sans);
 }
 
+/* Feedback form */
+.feedback-section {
+  margin-top: 40px;
+  padding: 24px 18px;
+  background: rgba(232,178,92,0.04);
+  border: 1px solid rgba(232,178,92,0.15);
+  border-radius: 2px;
+}
+
+.feedback-section h3 {
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.45em;
+  margin-bottom: 4px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.fb-input {
+  background: rgba(20,16,10,0.6);
+  border: 1px solid rgba(232,178,92,0.2);
+  color: var(--cream);
+  padding: 12px 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.fb-input::placeholder {
+  color: var(--gold-dim);
+  opacity: 0.7;
+}
+
+.fb-input:focus {
+  border-color: var(--gold);
+  background: rgba(20,16,10,0.85);
+}
+
+.fb-textarea {
+  resize: vertical;
+  min-height: 70px;
+  font-family: var(--sans);
+  line-height: 1.6;
+}
+
+.fb-submit {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 12px 24px;
+  font-family: var(--serif);
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 0.3em;
+  transition: all 0.25s;
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
+.fb-submit:hover:not(:disabled) {
+  background: rgba(232,178,92,0.1);
+  letter-spacing: 0.4em;
+}
+
+.fb-submit:disabled {
+  border-color: var(--gold-dim);
+  color: var(--gold-dim);
+  cursor: default;
+}
+
 .result-actions {
   display: flex;
   gap: 12px;
@@ -1253,6 +1336,17 @@ function showResult() {
         ${scoreBar('J', 'P', jPct, 100 - jPct)}
       </div>
 
+      <div class="feedback-section">
+        <h3>留 下 你 的 足 跡</h3>
+        <div class="divider"></div>
+        <form class="feedback-form" id="feedback-form" onsubmit="submitFeedback(event, '${type}')">
+          <input type="text" class="fb-input" name="name" placeholder="怎麼稱呼你" required>
+          <input type="email" class="fb-input" name="email" placeholder="Email" required>
+          <textarea class="fb-input fb-textarea" name="message" placeholder="你有什麼想說的呢" rows="3"></textarea>
+          <button type="submit" class="fb-submit" id="fb-submit-btn">送 出</button>
+        </form>
+      </div>
+
       <div class="result-actions">
         <button class="result-btn" onclick="location.reload()">重 新 測 驗</button>
         <button class="result-btn" onclick="shareResult('${type}', '${result.name}', '${result.tag}')">複 製 結 果</button>
@@ -1313,6 +1407,36 @@ function shareResult(type, name, tag) {
   } else {
     showToast('複製失敗，請手動截圖');
   }
+}
+
+function submitFeedback(event, mbtiType) {
+  event.preventDefault();
+  const form = event.target;
+  const btn = document.getElementById('fb-submit-btn');
+  const formData = new FormData();
+  formData.append('entry.233839242', form.name.value);
+  formData.append('entry.815150300', form.email.value);
+  formData.append('entry.1567987287', mbtiType);
+  formData.append('entry.576889558', form.message.value);
+
+  btn.disabled = true;
+  btn.textContent = '送 出 中 ...';
+
+  // Google Forms doesn't support CORS so we use no-cors mode.
+  // We can't read the response, but the data still gets submitted.
+  fetch('https://docs.google.com/forms/d/e/1FAIpQLScKlS-1uLSm9lts03JjDdMvFXB4aVbV0YyUb_KGEjXDxQp_eA/formResponse', {
+    method: 'POST',
+    mode: 'no-cors',
+    body: formData
+  }).then(() => {
+    btn.textContent = '已 收 到 ， 謝 謝 你  ✓';
+    form.querySelectorAll('.fb-input').forEach(el => el.disabled = true);
+    showToast('感謝你的回饋');
+  }).catch(() => {
+    btn.disabled = false;
+    btn.textContent = '送 出';
+    showToast('送出失敗，請稍後再試');
+  });
 }
 
 function showToast(msg) {
