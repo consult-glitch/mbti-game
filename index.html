@@ -399,27 +399,65 @@ body::after {
   z-index: 0;
 }
 
+.result-mbti-box {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 36px;
+}
+
+.result-mbti-big {
+  font-family: var(--serif);
+  font-size: 72px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.22em;
+  line-height: 1;
+  padding: 28px 40px 24px;
+  border: 1px solid rgba(232, 178, 92, 0.4);
+  border-radius: 2px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(232, 178, 92, 0.12) 0%, transparent 70%),
+    rgba(31, 24, 16, 0.4);
+  text-shadow: 0 0 40px rgba(232, 178, 92, 0.5),
+               0 0 80px rgba(232, 178, 92, 0.2);
+  box-shadow:
+    inset 0 0 40px rgba(232, 178, 92, 0.06),
+    0 0 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.result-mbti-big::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(232, 178, 92, 0.15);
+  pointer-events: none;
+  border-radius: 1px;
+}
+
+.result-label {
+  font-family: var(--serif);
+  font-size: 11px;
+  color: var(--gold-dim);
+  letter-spacing: 0.4em;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
 .result-name {
   font-family: var(--serif);
-  font-size: 48px;
+  font-size: 42px;
   font-weight: 500;
   color: var(--gold);
   letter-spacing: 0.15em;
-  margin-bottom: 6px;
+  margin-bottom: 24px;
   line-height: 1.2;
   text-shadow: 0 0 30px rgba(232,178,92,0.25);
 }
 
-.result-mbti {
-  font-size: 12px;
-  color: var(--cream-dim);
-  letter-spacing: 0.45em;
-  margin-bottom: 10px;
-}
-
 .result-tag {
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: 18px;
   color: var(--cream);
   margin-bottom: 40px;
   letter-spacing: 0.05em;
@@ -682,11 +720,37 @@ body::after {
   .title-screen { padding: 60px 0 30px; }
   .title-screen h1 { font-size: 30px; }
   .title-screen .desc { font-size: 14px; }
-  .result-name { font-size: 38px; }
-  .result-image { width: 180px; height: 180px; }
+  .result-name { font-size: 34px; }
+  .result-mbti-big { font-size: 52px; padding: 22px 28px 18px; letter-spacing: 0.18em; }
+  .result-tag { font-size: 16px; }
   .scores { grid-template-columns: 1fr; }
   .choice { padding: 12px 16px; font-size: 14px; }
   .start-btn { padding: 14px 36px; font-size: 15px; }
+  .gatekeeper-intro p { font-size: 16px; }
+}
+
+/* Gatekeeper page */
+.gatekeeper {
+  animation: fadeIn 0.8s ease;
+  padding-top: 20px;
+}
+
+.gatekeeper-intro {
+  text-align: center;
+  margin: 24px 0 32px;
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--cream);
+  line-height: 2;
+  letter-spacing: 0.05em;
+}
+
+.gatekeeper-intro p {
+  margin-bottom: 2px;
+}
+
+.gatekeeper-form {
+  margin-top: 20px;
 }
 
 @media (max-height: 700px) {
@@ -1278,7 +1342,63 @@ function showClosing() {
   hideChoices();
   setBackButton(false);
   typewrite(SCENES.closing, () => {
-    showChoices([{ text: '我準備好了', action: showResult }]);
+    showChoices([{ text: '我準備好了', action: showGatekeeper }]);
+  });
+}
+
+function showGatekeeper() {
+  state.scene = 'gatekeeper';
+  hideChoices();
+  setBackButton(false);
+  const type = calculateType();
+  state.pendingType = type;
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="gatekeeper">
+      <div class="orb-container"><div class="orb"></div></div>
+      <div class="gatekeeper-intro">
+        <p>在揭曉你是誰之前——</p>
+        <p>光想先認識你一下。</p>
+      </div>
+      <div class="feedback-section gatekeeper-form">
+        <h3>留 下 你 的 足 跡</h3>
+        <div class="divider"></div>
+        <form class="feedback-form" id="feedback-form" onsubmit="submitFeedbackAndReveal(event, '${type}')">
+          <input type="text" class="fb-input" name="name" placeholder="怎麼稱呼你" required>
+          <input type="email" class="fb-input" name="email" placeholder="Email" required>
+          <textarea class="fb-input fb-textarea" name="message" placeholder="你有什麼想說的呢（選填）" rows="3"></textarea>
+          <button type="submit" class="fb-submit" id="fb-submit-btn">送 出 ， 揭 曉 結 果</button>
+        </form>
+      </div>
+    </div>
+  `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function submitFeedbackAndReveal(event, mbtiType) {
+  event.preventDefault();
+  const form = event.target;
+  const btn = document.getElementById('fb-submit-btn');
+  const formData = new FormData();
+  formData.append('entry.233839242', form.name.value);
+  formData.append('entry.815150300', form.email.value);
+  formData.append('entry.1567987287', mbtiType);
+  formData.append('entry.576889558', form.message.value || '');
+
+  btn.disabled = true;
+  btn.textContent = '送 出 中 ...';
+
+  fetch('https://docs.google.com/forms/d/e/1FAIpQLScKlS-1uLSm9lts03JjDdMvFXB4aVbV0YyUb_KGEjXDxQp_eA/formResponse', {
+    method: 'POST',
+    mode: 'no-cors',
+    body: formData
+  }).then(() => {
+    // After successful submit, reveal result
+    setTimeout(() => showResult(), 500);
+  }).catch(() => {
+    // Even on catch (which shouldn't happen with no-cors), still reveal
+    setTimeout(() => showResult(), 500);
   });
 }
 
@@ -1297,12 +1417,12 @@ function showResult() {
   const app = document.getElementById('app');
   app.innerHTML = `
     <div class="result">
-      <div class="result-image">
-        <span class="ph">[ ${result.name} ]</span>
-        <img src="images/${type}.jpg" alt="${result.name}" onerror="this.style.display='none'">
+      <div class="result-mbti-box">
+        <div class="result-mbti-big">${type}</div>
       </div>
+      <div class="result-label">代 表 人 物</div>
       <div class="result-name">${result.name}</div>
-      <div class="result-mbti">${type.split('').join(' ')}</div>
+      <div class="result-label">一 句 話 形 容 你</div>
       <div class="result-tag">${result.tag}</div>
 
       <div class="result-section">
@@ -1336,20 +1456,9 @@ function showResult() {
         ${scoreBar('J', 'P', jPct, 100 - jPct)}
       </div>
 
-      <div class="feedback-section">
-        <h3>留 下 你 的 足 跡</h3>
-        <div class="divider"></div>
-        <form class="feedback-form" id="feedback-form" onsubmit="submitFeedback(event, '${type}')">
-          <input type="text" class="fb-input" name="name" placeholder="怎麼稱呼你" required>
-          <input type="email" class="fb-input" name="email" placeholder="Email" required>
-          <textarea class="fb-input fb-textarea" name="message" placeholder="你有什麼想說的呢" rows="3"></textarea>
-          <button type="submit" class="fb-submit" id="fb-submit-btn">送 出</button>
-        </form>
-      </div>
-
       <div class="result-actions">
         <button class="result-btn" onclick="location.reload()">重 新 測 驗</button>
-        <button class="result-btn" onclick="shareResult('${type}', '${result.name}', '${result.tag}')">複 製 結 果</button>
+        <button class="result-btn" onclick="shareResult()">分 享 測 驗</button>
       </div>
     </div>
   `;
@@ -1397,11 +1506,11 @@ function calculateType() {
   return ei + sn + tf + jp;
 }
 
-function shareResult(type, name, tag) {
-  const text = `我在《冒險者咖啡廳｜16型人格 對話遊戲》得到的結果是：\n\n${name}（${type}）\n${tag}\n\n2026 火馬年特輯，你也來看看自己吧。`;
+function shareResult() {
+  const text = '非常因應時勢的16型人格測驗，一起來測看看！https://mi-cg.com/16p-game/';
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(
-      () => showToast('已複製到剪貼簿'),
+      () => showToast('已複製分享連結'),
       () => showToast('複製失敗，請手動截圖')
     );
   } else {
