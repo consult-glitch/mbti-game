@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#14100a">
+<meta name="description" content="冒險者咖啡廳｜16型人格 對話遊戲 - 隱身都市的木造咖啡廳，一道溫暖的光，邀請你走近。">
+<title>冒險者咖啡廳｜16型人格 對話遊戲</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #14100a;
+  --bg-warm: #1f1810;
+  --cream: #ede4d3;
+  --cream-dim: #b8ac95;
+  --gold: #e8b25c;
+  --gold-bright: #f5c87a;
+  --gold-dim: #8a6a35;
+  --red-accent: #c8492c;
+  --serif: 'Noto Serif TC', 'Songti TC', serif;
+  --sans: 'Noto Sans TC', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(232,178,92,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 110%, rgba(200,73,44,0.05) 0%, transparent 60%),
+    var(--bg);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* wood grain texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0, transparent 110px, rgba(232,178,92,0.014) 110px, rgba(232,178,92,0.014) 111px),
+    repeating-linear-gradient(0deg, transparent 0, transparent 220px, rgba(232,178,92,0.010) 220px, rgba(232,178,92,0.010) 221px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* grain noise */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+#app {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 36px 24px 48px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The light orb */
+.orb-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 130px;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.orb {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--gold-bright) 0%, var(--gold) 28%, var(--gold-dim) 65%, transparent 100%);
+  box-shadow:
+    0 0 40px rgba(232,178,92,0.55),
+    0 0 90px rgba(232,178,92,0.28),
+    0 0 140px rgba(232,178,92,0.12);
+  animation: breathe 4s ease-in-out infinite;
+  position: relative;
+}
+
+.orb::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,178,92,0.18) 0%, transparent 60%);
+  animation: halo 4s ease-in-out infinite;
+}
+
+.orb::after {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(255,240,200,0.6) 0%, transparent 40%);
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes halo {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.18); opacity: 1; }
+}
+
+/* Dialogue */
+.dialogue {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 2.0;
+  color: var(--cream);
+  letter-spacing: 0.025em;
+  padding: 0 6px;
+  min-height: 140px;
+  margin-bottom: 28px;
+  font-weight: 400;
+}
+
+.dialogue br + br {
+  display: block;
+  content: '';
+  margin-top: 0.6em;
+}
+
+.cursor {
+  display: inline-block;
+  width: 7px;
+  height: 1.05em;
+  background: var(--gold);
+  vertical-align: text-bottom;
+  animation: blink 0.85s steps(2, start) infinite;
+  margin-left: 3px;
+  box-shadow: 0 0 8px rgba(232,178,92,0.6);
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
+}
+
+/* Choices */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: auto;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+.choices.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.choice {
+  background: rgba(232,178,92,0.04);
+  border: 1px solid rgba(232,178,92,0.18);
+  color: var(--cream);
+  padding: 13px 20px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+  letter-spacing: 0.04em;
+  position: relative;
+}
+
+.choice:hover {
+  background: rgba(232,178,92,0.10);
+  border-color: rgba(232,178,92,0.45);
+  transform: translateX(3px);
+}
+
+.choice:active {
+  transform: translateX(3px) scale(0.99);
+}
+
+.choice::before {
+  content: '▸';
+  color: var(--gold);
+  margin-right: 12px;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+
+.choice:hover::before {
+  opacity: 1;
+}
+
+/* Stagger animation for choices */
+.choices.show .choice {
+  animation: choiceIn 0.4s ease backwards;
+}
+.choices.show .choice:nth-child(1) { animation-delay: 0.05s; }
+.choices.show .choice:nth-child(2) { animation-delay: 0.13s; }
+.choices.show .choice:nth-child(3) { animation-delay: 0.21s; }
+.choices.show .choice:nth-child(4) { animation-delay: 0.29s; }
+
+@keyframes choiceIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Back button */
+.back-bar {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 10;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid rgba(232,178,92,0.25);
+  color: var(--gold-dim);
+  padding: 6px 14px;
+  font-family: var(--sans);
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.15em;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  visibility: hidden;
+}
+
+.back-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(232,178,92,0.06);
+}
+
+/* Top progress */
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(232,178,92,0.06);
+  z-index: 100;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
+  transition: width 0.6s ease;
+  width: 0%;
+  box-shadow: 0 0 8px rgba(232,178,92,0.4);
+}
+
+/* Title screen */
+.title-screen {
+  text-align: center;
+  padding: 80px 0 40px;
+  animation: fadeIn 1s ease;
+}
+
+.title-screen .seal {
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--gold-dim);
+  letter-spacing: 0.6em;
+  margin-bottom: 28px;
+}
+
+.title-screen h1 {
+  font-family: var(--serif);
+  font-size: 38px;
+  color: var(--gold);
+  letter-spacing: 0.18em;
+  margin-bottom: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-shadow: 0 0 30px rgba(232,178,92,0.3);
+}
+
+.title-screen .subtitle {
+  font-size: 12px;
+  color: var(--cream-dim);
+  letter-spacing: 0.45em;
+  margin-bottom: 56px;
+}
+
+.title-screen .desc {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 2;
+  color: var(--cream);
+  max-width: 460px;
+  margin: 0 auto 56px;
+  opacity: 0.85;
+}
+
+.start-btn {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 16px 48px;
+  font-family: var(--serif);
+  font-size: 16px;
+  cursor: pointer;
+  letter-spacing: 0.3em;
+  transition: all 0.3s;
+  border-radius: 2px;
+  position: relative;
+}
+
+.start-btn:hover {
+  background: rgba(232,178,92,0.1);
+  box-shadow: 0 0 20px rgba(232,178,92,0.3);
+  letter-spacing: 0.4em;
+}
+
+/* Result page */
+.result {
+  text-align: center;
+  padding: 24px 0 32px;
+  animation: fadeUp 1s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-image {
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 28px;
+  border: 1px solid rgba(232,178,92,0.35);
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(232,178,92,0.18) 0%, transparent 65%),
+    rgba(31,24,16,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-image::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(232,178,92,0.18);
+  pointer-events: none;
+}
+
+.result-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+}
+
+.result-image .ph {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--gold-dim);
+  letter-spacing: 0.15em;
+  z-index: 0;
+}
+
+.result-name {
+  font-family: var(--serif);
+  font-size: 48px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 6px;
+  line-height: 1.2;
+  text-shadow: 0 0 30px rgba(232,178,92,0.25);
+}
+
+.result-mbti {
+  font-size: 12px;
+  color: var(--cream-dim);
+  letter-spacing: 0.45em;
+  margin-bottom: 10px;
+}
+
+.result-tag {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--cream);
+  margin-bottom: 40px;
+  letter-spacing: 0.05em;
+}
+
+.result-section {
+  text-align: left;
+  margin: 32px 0;
+}
+
+.result-section h3 {
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.45em;
+  margin-bottom: 4px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.divider {
+  width: 50px;
+  height: 1px;
+  background: var(--gold-dim);
+  margin: 8px auto 18px;
+  opacity: 0.5;
+}
+
+.result-section .body {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 2;
+  color: var(--cream);
+  padding: 0 4px;
+}
+
+.result-section .body p { margin-bottom: 0.8em; }
+.result-section .body p:last-child { margin-bottom: 0; }
+
+.scores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 22px;
+  margin: 36px 0 12px;
+  padding: 20px 18px;
+  background: rgba(232,178,92,0.04);
+  border: 1px solid rgba(232,178,92,0.15);
+  border-radius: 2px;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--cream-dim);
+  letter-spacing: 0.1em;
+}
+
+.score-row .lbl {
+  width: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  font-family: var(--sans);
+  font-size: 12px;
+}
+
+.score-row .bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(232,178,92,0.15);
+  position: relative;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.score-row .fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright));
+  width: 0;
+  transition: width 1.4s cubic-bezier(0.2, 0.7, 0.3, 1) 0.4s;
+}
+
+.score-row .pct {
+  font-size: 10px;
+  width: 32px;
+  text-align: right;
+  color: var(--gold-dim);
+  font-family: var(--sans);
+}
+
+/* Feedback form */
+.feedback-section {
+  margin-top: 40px;
+  padding: 24px 18px;
+  background: rgba(232,178,92,0.04);
+  border: 1px solid rgba(232,178,92,0.15);
+  border-radius: 2px;
+}
+
+.feedback-section h3 {
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.45em;
+  margin-bottom: 4px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.fb-input {
+  background: rgba(20,16,10,0.6);
+  border: 1px solid rgba(232,178,92,0.2);
+  color: var(--cream);
+  padding: 12px 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.fb-input::placeholder {
+  color: var(--gold-dim);
+  opacity: 0.7;
+}
+
+.fb-input:focus {
+  border-color: var(--gold);
+  background: rgba(20,16,10,0.85);
+}
+
+.fb-textarea {
+  resize: vertical;
+  min-height: 70px;
+  font-family: var(--sans);
+  line-height: 1.6;
+}
+
+.fb-submit {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 12px 24px;
+  font-family: var(--serif);
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 0.3em;
+  transition: all 0.25s;
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
+.fb-submit:hover:not(:disabled) {
+  background: rgba(232,178,92,0.1);
+  letter-spacing: 0.4em;
+}
+
+.fb-submit:disabled {
+  border-color: var(--gold-dim);
+  color: var(--gold-dim);
+  cursor: default;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 36px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.result-btn {
+  background: transparent;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  padding: 12px 26px;
+  font-family: var(--serif);
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 0.2em;
+  transition: all 0.25s;
+  border-radius: 2px;
+}
+
+.result-btn:hover {
+  background: rgba(232,178,92,0.1);
+  border-color: var(--gold);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-warm);
+  border: 1px solid var(--gold-dim);
+  color: var(--cream);
+  padding: 12px 24px;
+  font-size: 13px;
+  font-family: var(--sans);
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 200;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Skip hint */
+.skip-hint {
+  position: absolute;
+  bottom: -22px;
+  right: 6px;
+  font-size: 10px;
+  color: var(--gold-dim);
+  letter-spacing: 0.2em;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  font-family: var(--sans);
+}
+
+.dialogue.typing .skip-hint {
+  opacity: 0.6;
+  animation: hintBlink 2s ease-in-out infinite;
+}
+
+@keyframes hintBlink {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Mobile */
+@media (max-width: 500px) {
+  #app { padding: 28px 18px 36px; }
+  .dialogue { font-size: 16px; line-height: 1.95; }
+  .orb { width: 64px; height: 64px; }
+  .orb-container { height: 100px; }
+  .title-screen { padding: 60px 0 30px; }
+  .title-screen h1 { font-size: 30px; }
+  .title-screen .desc { font-size: 14px; }
+  .result-name { font-size: 38px; }
+  .result-image { width: 180px; height: 180px; }
+  .scores { grid-template-columns: 1fr; }
+  .choice { padding: 12px 16px; font-size: 14px; }
+  .start-btn { padding: 14px 36px; font-size: 15px; }
+}
+
+@media (max-height: 700px) {
+  .orb-container { height: 90px; margin-bottom: 8px; }
+  .orb { width: 60px; height: 60px; }
+  #app { padding-top: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ========================================
+// DATA
+// ========================================
+
+const SCENES = {
+  opening: `都市的雨剛停。
+
+在夢中失速掉落，碰————翻滾、快速起身。
+
+跌坐在毫無動靜的街道上，驚訝的是，你毫髮無傷。
+
+你走進一條沒走過的巷子，看見一塊木牌：今日營業中。
+
+推開門，微風中充盈著風鈴聲，伴隨植栽的香氣和咖啡的氣韻。店裡空無一人——不，吧台後面好像有什麼東西。一道溫暖的光，靜靜地懸在那裡，像在等你。沒有人曉得它是誰，但相傳它是遊戲管理者。
+
+「歡迎光臨。」有個聲音，不大不小，剛好像在你耳邊。
+
+「2026 年，火馬年。今年人心、世界局勢翻騰得很厲害，不曉得你是否也有點感覺了——某部分的自己，該『重新整理』了。」
+
+「別緊張，我不是來給你算命的。我是來陪你看看『現在的你』長什麼樣子。等你看清楚了，再來考慮要不要對人生按下Reset鍵。」
+
+「我會問你一些問題。沒有對錯，憑直覺就好。」
+
+「最後，我們會媒合一位冒險者跟你聊聊。」
+
+「冒險者？我在哪？」
+`,
+  coffee: `「沒問題。」光（遊戲管理者）輕輕飄了一下，「這裡的咖啡是我請客。」
+
+一杯熱熱的東西就這樣出現在你面前。你不知道它什麼時候煮的。
+
+「喘口氣，還不想開始沒關係。我們有時間。」`,
+  break1: `光停下來，像是在感覺什麼。
+
+「嗯。我大概看到一點輪廓了。」
+
+「不過別太快下結論——人是很多層的。下一輪我要問的，是你怎麼安排你自己的時間和節奏。」
+
+「繼續囉？」`,
+  break2: `「一半了。」光的光暈柔柔地擴開一點。
+
+「我看你撐得不錯。很多人到這裡會開始想『我答的這些是對的嗎？』——別擔心，沒有對的，只有真的。」
+
+「下半場我要問的，是你怎麼接收這個世界的訊息，還有你怎麼做選擇。這部分通常會讓人想得比較久一點。」
+
+「準備好了再點。」`,
+  break3: `光的顏色微微變深了一點。
+
+「最後一段了。這一段，是我最在意的——你怎麼做選擇。」
+
+「人生裡每一個岔路，都是這些選擇堆出來的。所以慢慢答，沒關係。」`,
+  closing: `原先靜了一下。
+
+你忽然意識到，咖啡廳外面的雨已經完全停了。
+
+「謝謝。」光說，「足以讓我認識現在的你了。」
+
+「不是認識『你的答案』喔——是看完『你眼中的自己』。這兩個有時候差很多，你等下會知道。」
+
+「2026 火馬年，人心翻得很厲害——但你願意走到這裡、試著觀照自己，已經比大多數人多走了一步。」
+
+「來，看看我看到的你。」`
+};
+
+// 64 questions, each with dimension (EI/JP/SN/TF), polarity (E/I/J/P/S/N/T/F), and dialogue text
+const QUESTIONS = [
+  // E (8)
+  { dim:'EI', pol:'E', text:`你享受擁有寬廣的交友圈，喜歡身邊一直有人。` },
+  { dim:'EI', pol:'E', text:`遇到突發狀況時，你通常是第一個有反應的人。` },
+  { dim:'EI', pol:'E', text:`週末突然空出一天，你的第一個念頭是找人出來。` },
+  { dim:'EI', pol:'E', text:`到一個全新的環境，你能很快和陌生人打成一片。` },
+  { dim:'EI', pol:'E', text:`和一群人輕鬆對話的場合，會讓你感到舒服、有活力。` },
+  { dim:'EI', pol:'E', text:`一群人在一起時，你常常自然而然地成為話最多的那個。` },
+  { dim:'EI', pol:'E', text:`身處人多熱鬧的場合（演唱會、夜市、跨年），你整體感覺是享受的。` },
+  { dim:'EI', pol:'E', text:`在半生不熟的場合，主動跟陌生人開口聊天，對你來說不是難事。` },
+
+  // I (8)
+  { dim:'EI', pol:'I', text:`要讓你「嗨起來」，需要花比較多的力氣。` },
+  { dim:'EI', pol:'I', text:`你在人際互動上偏向保守，會和他人保持一點距離。` },
+  { dim:'EI', pol:'I', text:`長時間社交之後，你會很想離開現場、找個地方一個人靜一靜。` },
+  { dim:'EI', pol:'I', text:`比起熱鬧的聚會，你更喜歡一個人安靜地閱讀或獨處。` },
+  { dim:'EI', pol:'I', text:`外面很吵的時候，你會本能地想把自己跟外界隔開。` },
+  { dim:'EI', pol:'I', text:`進到一個新空間時，你會把自己安放在不顯眼的角落，而不是中間。` },
+  { dim:'EI', pol:'I', text:`閒下來的時候，你比較喜歡一個人安靜地放鬆。` },
+  { dim:'EI', pol:'I', text:`要把心裡強烈的感覺說出口，對你來說有點困難。` },
+
+  // J (8)
+  { dim:'JP', pol:'J', text:`和人約時間見面，你幾乎不會遲到。` },
+  { dim:'JP', pol:'J', text:`你會把每一段時間都用在刀口上，不喜歡虛度光陰。` },
+  { dim:'JP', pol:'J', text:`你習慣事先列清楚計畫和步驟，才開始動手做事。` },
+  { dim:'JP', pol:'J', text:`要開始一件新的事情，你會先把細節都規劃好。` },
+  { dim:'JP', pol:'J', text:`比起意外和驚奇，你更喜歡一切都在意料之內的感覺。` },
+  { dim:'JP', pol:'J', text:`把東西整理得井井有條時，你會有一種小小的滿足感。` },
+  { dim:'JP', pol:'J', text:`你一旦養成某個生活習慣，就幾乎不會偏離它。` },
+  { dim:'JP', pol:'J', text:`遵循大家共通的、常規的生活方式，會讓你比較踏實。` },
+
+  // P (8)
+  { dim:'JP', pol:'P', text:`你比較適合節奏快、一直有事情在動的工作型態。` },
+  { dim:'JP', pol:'P', text:`你覺得太死守規矩，反而會讓事情無法達到好的結果。` },
+  { dim:'JP', pol:'P', text:`你相信最好的決定，是一個之後可以隨時修正的決定。` },
+  { dim:'JP', pol:'P', text:`比起事先想清楚，你更傾向先採取行動再說。` },
+  { dim:'JP', pol:'P', text:`你傾向於遇到事情再臨場發揮，而不是事前完善地規劃。` },
+  { dim:'JP', pol:'P', text:`碰到問題時，你比較想嘗試新方法，而不是用過去熟悉的做法。` },
+  { dim:'JP', pol:'P', text:`對你來說，最後期限只是個提醒，而不是絕對必須使命必達的關口。` },
+  { dim:'JP', pol:'P', text:`原本計畫好的事情突然被打亂，你會覺得「剛好可以試試別的」。` },
+
+  // S (8)
+  { dim:'SN', pol:'S', text:`要你讀一本純理論的書，你會覺得無聊或無趣。` },
+  { dim:'SN', pol:'S', text:`你做事比較依賴實際經驗，而不是憑空想像的推論。` },
+  { dim:'SN', pol:'S', text:`想學新東西時，你會親自動手嘗試，而不是聽別人講過程。` },
+  { dim:'SN', pol:'S', text:`解決難題時，你比較願意用過去成功過的方法，而不是探索新路徑。` },
+  { dim:'SN', pol:'S', text:`你考慮事情時，比較專注在當下的狀況，而不是之後的可能性。` },
+  { dim:'SN', pol:'S', text:`比起未來的計畫，眼前的具體事情更容易佔據你的心思。` },
+  { dim:'SN', pol:'S', text:`比起飄在空中的可能性、未來性，你更相信親眼看到、親手摸過的東西。` },
+  { dim:'SN', pol:'S', text:`回想學過的東西，你記得比較清楚的是具體例子和細節。` },
+
+  // N (8)
+  { dim:'SN', pol:'N', text:`你覺得世界上每件事都是相對的，沒有絕對的對錯。` },
+  { dim:'SN', pol:'N', text:`你常常想到人類整體的未來和命運。` },
+  { dim:'SN', pol:'N', text:`你常常會對現象與事情的根源沉思不已。` },
+  { dim:'SN', pol:'N', text:`你很容易從一件具體的事情，看出某種一體適用的通則。` },
+  { dim:'SN', pol:'N', text:`你能夠很快理解新的、抽象的、別人沒講過的理論。` },
+  { dim:'SN', pol:'N', text:`面對一個情境，你的腦子會自動展開很多種可能的發展。` },
+  { dim:'SN', pol:'N', text:`你總是在尋找新的機會與可能性。` },
+  { dim:'SN', pol:'N', text:`在內心深處，你渴望未知的冒險，不想千篇一律地過完一生。` },
+
+  // T (8)
+  { dim:'TF', pol:'T', text:`做判斷時，你比較相信冷靜的分析，而不是直接的感受。` },
+  { dim:'TF', pol:'T', text:`你認為公平正義比體諒原諒更有價值。` },
+  { dim:'TF', pol:'T', text:`你相信幾乎每一件事都是可以被客觀分析和理解的。` },
+  { dim:'TF', pol:'T', text:`面對自己強烈的慾望和衝動，你能夠靠理智把自己拉住。` },
+  { dim:'TF', pol:'T', text:`解決棘手的問題時，你會先把感受放一邊，純粹看事實。` },
+  { dim:'TF', pol:'T', text:`對你來說，想清楚的判斷比顧及對方的心情更重要。` },
+  { dim:'TF', pol:'T', text:`規定就是規定，再熟也不該因為人情而例外。` },
+  { dim:'TF', pol:'T', text:`看一個新提案時，你會先注意到它的漏洞和問題，而不是優點。` },
+
+  // F (8)
+  { dim:'TF', pol:'F', text:`看劇或電影時，你很容易跟著主角一起入戲、被牽動情緒。` },
+  { dim:'TF', pol:'F', text:`你覺得這個世界是建立在人與人之間的慈悲心上頭的。` },
+  { dim:'TF', pol:'F', text:`做決定的時候，你比較依賴自己的感受，而不是分析。` },
+  { dim:'TF', pol:'F', text:`你心裡的情緒，通常會自然而然地從表情和語氣流露出來。` },
+  { dim:'TF', pol:'F', text:`身邊的人遇到不好的事情時，你會本能地想表達同情和陪伴。` },
+  { dim:'TF', pol:'F', text:`不用對方說，你大概就能讀出他在想什麼、在乎什麼。` },
+  { dim:'TF', pol:'F', text:`聽到陌生人發生不幸，你心裡會立刻有一陣很真實的揪痛感。` },
+  { dim:'TF', pol:'F', text:`當強烈的情緒湧上來時，你的言行會明顯被它影響。` }
+];
+
+// 16 Result Pages
+const RESULTS = {
+  ENTJ: {
+    name: 'Amie', tag: '全場最快的腦袋',
+    reveal: `「嗯。」光稍微靠近了一點，「你是那種一進房間就會自動掃描的人——誰在哪、誰跟誰、現在卡在哪、要怎麼動。對吧？」
+
+「你不是冷，你只是很快。快到別人還在感覺，你已經在做了。」
+
+「你叫Amie。在這個咖啡廳的故事裡，我都這樣叫你。」`,
+    who: `Amie是個能把混亂瞬間排成隊伍的人。她決策快、目標清楚、不容許低效——但這份精明有個小祕密：當事情變成「人情」，她反而會宕機。她可以調度十個專案，卻不太知道怎麼安慰一個哭出來的朋友。她的強，是真的強；她的卡，也是真的卡。`,
+    advice: `今年試著每天留 15 分鐘給「沒效率的事」——發呆、亂逛、跟同事閒聊不為什麼。寫進行事曆，當成正事執行。你會發現指揮棒拿得更穩。`,
+    suit: `你適合——聞聞艾草的香氣，讓氣味入鼻，充斥腦中，暫時放空。`
+  },
+  ISFJ: {
+    name: 'Ocean', tag: '會記得你細節的那個人',
+    reveal: `光的聲音變得很柔。
+
+「你是會在聚會結束後，記得『欸誰好像今天看起來不太對』的那種人吧？然後晚上回家偷偷傳一個訊息給對方。」
+
+「沒有人教你，你就會了。這種東西很珍貴，可是也很容易被當成理所當然。」
+
+「你叫Ocean。」`,
+    who: `Ocean是默默的守護者。她不會大聲說「我關心你」，但她會記得你上次提過的小事、會在你忘記吃飯的時候出現在你面前。她的愛是水流的形狀，柔軟但無處不在。她的辛苦在於：她記得每一個人，但常常忘記自己也需要療癒。`,
+    advice: `今年試一件事：每週空出一個「自私時段」——一小時就好，做完全為自己的事，誰都不告訴、不對誰交代。可以是看一部沒人想看的電影、可以是吃一頓不分享的飯。練習把自己也放進「被照顧的名單」裡。`,
+    suit: `你適合——拿起粉彩筆，讓指尖去把思緒流動成畫。`
+  },
+  ENFP: {
+    name: 'Leo', tag: '一秒就點燃的人',
+    reveal: `「哇你能量很高欸。」光退後了一點點，像是被風吹了一下，「我剛剛感覺像是一個小型煙火秀。」
+
+「你看到不對的事就想衝、看到新點子就想試、看到有趣的人就想認識。然後，三天後你又跑去做別的了。對吧？對吧？我猜對了吧？」
+
+「你叫Leo。」`,
+    who: `Leo是那種會在午夜傳訊息給朋友：「欸我剛想到一件事，明天我們來做這個！」的人。他是火，是火種，是能瞬間把一群人點起來的那種能量。但火也有火的問題——燒太快、容易熄、需要學會什麼時候慢下來才能燒得久。`,
+    advice: `今年挑一件事——只挑一件——硬著頭皮做滿三個月。不是更有趣的那件，是你已經拖了三次的那件。你的弱點不是沒點子，是不夠深。深一次，你就會解鎖以前沒看過的風景。`,
+    suit: `你適合——挑一張你喜歡的明信片，寫下給自己的期許。`
+  },
+  INFJ: {
+    name: 'Yogashi', tag: '一句話讓你想三天',
+    reveal: `光靜了一下。
+
+「跟你對話有點奇妙——我感覺你不只是在回答我，你也在看著我。看我從哪裡來、為什麼會在這裡、接下來要說什麼。」
+
+「這種眼睛是天生的。它讓你看見很多別人看不見的東西，也讓你常常很孤獨——因為你看到的，沒辦法跟每個人說。」
+
+「你叫Yogashi。」`,
+    who: `Yogashi是那種一句話就能讓你愣住、然後想三天的人。他沉靜、深、看得遠——不是因為他很神，而是因為他真的願意花時間去理解。他像雨後的天空，安靜中帶著一種乾淨的力量。但他的代價是：看得太清楚的人，常常找不到能講話的對象，於是獨自靜定下來。`,
+    advice: `今年找一個你不用解釋自己也能被理解的人——不需要很多，一個就夠。如果現在沒有，那就花今年的時間去找。看透世界的人，最不該省的就是這個。`,
+    suit: `你適合——選一支喜歡的線香，送給一位你知道他能懂你眼中那份「靜」的人。`
+  },
+  ISFP: {
+    name: '小光', tag: '聽見你沒說出口的人',
+    reveal: `光輕飄飄的。
+
+「你是那種——別人講一句話，你會聽到背後三層的人吧？不是分析喔，是感覺。你會接住對方沒說出口的那一塊。」
+
+「跟你相處的人應該都覺得很舒服。但你自己呢？你舒服嗎？」
+
+「你叫小光。」`,
+    who: `小光是溫柔的接收器。她對人的感受有極細的天線——別人需要什麼、不舒服在哪、想被怎麼對待，她大概都知道。她不會主動很熱情，但你會在某個瞬間發現「啊，這個人懂我」。她的天線太敏感了，所以她也需要更多的安靜，來把自己重新整理好。`,
+    advice: `今年練習說「不」。不需要找理由、不需要愧疚——「今天不行」「我這週不方便」就是完整的一句話。第一次說會抖，第十次就習慣了。`,
+    suit: `你適合——摘一片香草，喝一杯以「它」沖泡的熱茶，安靜地接住自己。`
+  },
+  ISTJ: {
+    name: 'Emma', tag: '說到就做到的那一個',
+    reveal: `「你是有原則的人。」光說，「不是死板那種，是『答應的事就要做到、做事就要有規矩』那種。我看你的時候，感覺你身上有一根很穩的線。」
+
+「但這條線也有反面——當有人挑戰你最在意的事，你會變得非常不好惹。」
+
+「你叫Emma。」`,
+    who: `Emma是那種你可以託付重要事情的人。他不浮誇、不愛社交，但他的承諾比任何契約都重。他像一塊陳年硯台——安靜、沉穩、看起來不起眼，但磨出來的墨，字字清楚。他的固執不是壞事，那是他守住自己的方式；但他也容易因此把愛的人推遠。`,
+    advice: `今年挑一條你自己的規矩，故意破掉它。任何一條都行——固定的早餐、固定的通勤路線、固定的週末安排。不是為了亂，是為了知道哪些線你真的相信、哪些只是慣性。`,
+    suit: `你適合——挑一張原點卡，去看見背後你的慣性。`
+  },
+  INFP: {
+    name: 'Luke', tag: '心裡有很多話的人',
+    reveal: `光的聲音變得非常輕。
+
+「你心裡有話。很多話。」
+
+「你常常覺得別人不懂你、不公平、為什麼要這樣對你——但你又會立刻在心裡幫對方找理由，然後把那些感受壓回去。對嗎？」
+
+「壓久了會很悶的喔。Luke。」`,
+    who: `Luke是條沉默的河。表面看起來平靜，水底下卻有湍急的暗流——理想、失望、想被理解的渴望，全在那裡流動。他對世界的善意是真的，他的怨怒也是真的。這兩個東西在他心裡常常拉扯，但他習慣不讓人看見。他需要一個出口，不一定是說出來，可能是寫、是畫、是任何能把那條河引出來的方式。`,
+    advice: `今年給自己一個只給你自己看的出口——一本筆記本、一個沒人追蹤的小帳、一個錄音檔都行。每週至少寫/說一次「這週讓我不爽的事」，不修飾、不替別人解釋。怨怒沒地方去才會變痛，有地方去就只是訊息。`,
+    suit: `你適合——動手做點東西，流流汗、讓情緒流動。`
+  },
+  ESFJ: {
+    name: '阿辰', tag: '天生的暖爐',
+    reveal: `光像被照到了一下。
+
+「你會主動去看誰沒有被照顧到，然後走過去。這不是技巧，這是天性。」
+
+「你應該是那種——大家有事都會找你的人。不是因為你最會解決，是因為你會讓人覺得『我不孤單』。」
+
+「你叫阿辰。」`,
+    who: `阿辰是天然的主人。他會記得每個人的喜好、會在聚會中悄悄調整氣氛、會在你需要的時候出現。他務實、可靠、善良——像一個一直開著的火爐，誰冷了都可以靠過來。但火爐需要柴火，他常常忘記給自己添。`,
+    advice: `今年練一件不太自然的事：主動跟一個朋友說「我今天不太好」。不解釋、不要求他解決，就是讓他知道。一年內做到三次，就算過關。被照顧的位置也是你的，不要全部讓給別人。`,
+    suit: `你適合——拉個筋、伸展身體，身體先開，心才會開。`
+  },
+  INTJ: {
+    name: 'Larry', tag: '什麼問題都能拆',
+    reveal: `「好。我看你大概看完了。」光說，「你是會把問題拆到最底層、找到根本的那種人。不是聰明而已——是『不到根源不罷休』的那種執念。」
+
+「你身邊應該很多人來找你問事情。但你自己呢？你會找誰？」
+
+「該不會，總是跟自己對話吧？Larry。」`,
+    who: `Larry是那種能把混亂的問題切成清晰結構的人。他冷靜、深、看得遠，能在別人還在情緒裡的時候已經畫出三條路。他務實，卻不無聊——他知道什麼方法可行，也願意試新的。他的盲點是：所有人都來找他要答案，沒有人問他需要什麼。他自己也常常忘記問。`,
+    advice: `今年找一個你尊敬的人，定期跟他/她要建議——一個月一次也好。不是要他幫你解決，是要你練習「把自己的事拿出來給別人看」。你給別人的答案夠多了，欠自己的答案還沒寫。`,
+    suit: `你適合——抽一張藥籤一番賞，吊在包包提醒自己。`
+  },
+  ESFP: {
+    name: '萍萍', tag: '房間裡最亮的那一個',
+    reveal: `「你進來的時候我就感覺到了。」光說，「你身上有一種『我就是要被看見』的能量——不是壞事喔，那是你的引擎。」
+
+「你會做很大的動作、講很響的話、把所有人的眼睛吸過來。但你心裡知道，那個聚光燈下面，有時候空空的。」
+
+「你的情緒似乎都掩藏在大家的目光之後，你以為沒人看見你，但其實.......？」`,
+    who: `萍萍是天生的場面人。她的肢體很大、反應很快、敢做敢試——她可以瞬間變成派對的中心，也可以瞬間讓無聊的事變得好玩。她的渴望被看見是真的，那是她心裡某個還沒被回應的部分在喊。但她搶 C 位的時候，常常不太敢講真正的自己，只能用浮誇的姿勢去填那個空白。`,
+    advice: `今年練習一段不靠表演的關係——挑一個你信任的人，跟他/她在一起時，刻意不浮誇、不搶話、不講笑話。就是平淡地存在。剛開始你會覺得「我這樣算什麼」，撐過那段你會發現：原來你不演，也有人想留下。`,
+    suit: `你適合——體驗放開的「動」，也體驗放下的「靜」。`
+  },
+  ENTP: {
+    name: 'Linda', tag: '想太多選不出來的人',
+    reveal: `光沉了一下，輕輕說。
+
+「你的腦子跑得很快——一秒鐘可以跑出十個方向、十種解釋、十個『可是』。對吧？」
+
+「然後你發現你選不出來。然後你覺得自己很無能。然後你哭了，但你說不出來為什麼。」
+
+「不是你的錯。你只是看到了太多。」`,
+    who: `Linda是個被自己的直覺淹沒的人。她能同時看到一件事的十種可能，這是天賦，但也是詛咒——因為太多選項就等於太多想像，太多「想像」就會抵銷成「我不知道」。她不是沒聲音，她是有太多聲音，混在一起變成了沉默。她需要的不是更多選擇，是有人陪她把選項一個一個放下來。`,
+    advice: `今年練三分鐘決策法：遇到選擇，給自己三分鐘——時間到就硬選一個，錯了再改。先從小事開始（午餐、衣服、要不要回那則訊息），再慢慢練到大事。你的問題不是想不到，是想太多。動了才有資料修正。`,
+    suit: `你適合——拿一個按摩梳，把你緊繃的腦袋瓜，鬆一鬆吧。`
+  },
+  ESTP: {
+    name: '龍龍', tag: '走到哪笑到哪',
+    reveal: `光像被逗笑了。
+
+「你是現場感很強的人欸。我感覺你只要走進一個房間，氣氛就會變不一樣。你會講話、會做表情、會讓大家笑——而且你是真的享受這件事。」
+
+「你能夠瞬間切換自己的狀態，然後，轉變現場的狀態。」
+
+「但這麼有歡樂渲染力的你，走出門後是怎樣呢？」
+
+`,
+    who: `龍龍是天生的舞台人。他的肢體會說話、表情會放大、靈感會即興冒出來——他能把一場無聊的聚會變成大家明天還會回想的記憶。他的快樂是真的快樂，但他也常常用快樂去包裹一些更深的東西。當他在製造笑聲的時候，沒有人會記得他可能也累了。`,
+    advice: `今年找一個人，跟他/她約定：「在你面前我可以不搞笑。」這個人可以是伴侶、朋友、家人——挑一個就好。然後練習在他/她面前不表演、不娛樂、就是無聊地存在。剛開始會很彆扭，撐過那段就值得。`,
+    suit: `你適合——拉張椅子，就只是坐在一個人旁邊，不需要不安。`
+  },
+  INTP: {
+    name: 'Adrain', tag: '腦袋裡有自己的宇宙',
+    reveal: `「你有自己的世界。」光說，「不是封閉那種，是『裡面有很多東西在跑』的那種。你會花好幾個小時想一件別人覺得不重要的事，因為你想搞懂它的本質。」
+
+「你的文字大概比你的口頭話更接近真實的你。對吧？」
+
+「你對世界的好奇，來自於你的雙眼。」`,
+    who: `Adrain是個內在世界比外在世界更豐富的人。他對概念、結構、根本問題有強烈的好奇——他能把一個現象拆到底、再從底層重新理解。他的智慧是深的，但這份深也讓他在人群中常常當機——突發狀況、情緒衝突、大量社交，這些都會讓他的系統暫時離線。這不代表他笨，這代表他的處理路徑跟別人不一樣。`,
+    advice: `今年練一句話：當別人在情緒裡的時候，不要立刻分析，先說「我聽到了，這真的不容易」。這比你想像中難——你的本能是想拆解問題——但這句話會打開你以前撞牆的所有門。一週至少用三次。`,
+    suit: `你適合——挑一張玻璃版畫，把你的世界用文字寫下註解。`
+  },
+  ESTJ: {
+    name: '賢賢', tag: '很想做對卻常常卡住',
+    reveal: `光的聲音變柔了。
+
+「你是那種很想把事情做對的人——規矩、流程、責任，這些對你來說都很重要。你不是死板，你是真的相信『有規矩才能讓大家都安心』。」
+
+「但有時候事情突然亂掉了，或者有人很激動地對你發脾氣——你會整個當機，對吧？那不是你不行，是那個瞬間超出了你能處理的範圍。」
+
+「你是團體中會被關注的存在，大家因為你的條理，更有秩序；但也會因爲你的行為舉止，被牽動每個心緒。」`,
+    who: `賢賢是想把世界整理好的人。他相信責任、相信秩序、相信「該怎麼做就該怎麼做」——這份信念讓他在穩定的環境裡是一個極可靠的支柱。但當生活突然失控的時候——情緒、人群、意外——他的系統會超載，外人看起來像是「卡住」「變笨」「不會反應」。其實他只是太想做好，反而綁住了自己。`,
+    advice: `今年練一招重啟術：當你發現自己卡住、腦子糊了的時候，立刻起身離開現場 5 分鐘——去洗手間、去倒水、去走廊走兩步都行。不要逼自己「現在就要想清楚」。離開、回來、再說。這 5 分鐘能救你後面 5 小時的災情。`,
+    suit: `你適合——拿起一張擴香再生紙，嗅吸上面的味道，讓時而緊繃混亂的大腦暫停一下。`
+  },
+  ENFJ: {
+    name: '雲雲', tag: '看不下去就會講的人',
+    reveal: `「你的價值觀很清楚。」光說，「對的就是對的、錯的就是錯的，沒有中間。你看到不對的事會說出來，即使對方是你愛的人。」
+
+「這份犀利不是冷酷，是因為你真的在乎。但你也常常因為這份在乎而傷到自己。」
+
+「你，常常覺得被誤會。」`,
+    who: `雲雲是個道德感極強的人。她的判斷快、清晰、有力——像一根繃緊的弦，一彈就響。她不是不屑，她是看不下去：看不下去虛偽、看不下去逃避、看不下去人因為怕事就放棄了該守的東西。她的犀利讓她能成為改變的力量，但也讓她常常成為孤獨的那一個。因為說真話，是有代價的。`,
+    advice: `今年練三秒法則：每次想開口說真話之前，先在心裡數三秒。不是讓你不說，是讓你想一下「我等下要說的話，是給對方的，還是給自己爽的」。三秒能救你後面三天的爭執。`,
+    suit: `你適合——挑一個你喜歡的繩結，結合一張祈福卡，帶在身上提醒自己。`
+  },
+  ISTP: {
+    name: 'Nico', tag: '不繞彎的人',
+    reveal: `光稍微停了一下，像是在感覺什麼。
+
+「你是那種——別人講話有八層意思，你只聽到第一層的人。對吧？」
+
+「不是笨喔，是你選擇用最簡單的方式活著。複雜的人心、暗示、政治、那些彎來彎去的東西，你看不太到。但這也讓你比大部分人都自由。」
+
+「你務實、理性，但為了不要讓事情太過複雜，往往會『一切隨緣』。」`,
+    who: `阿拙是個樸實的人。他相信「事情做好就好」「人對你好你就對他好」——這種直接讓他在複雜的人際裡常常吃虧，因為他看不見彎曲的那些東西。但這份「拙」其實是他最珍貴的部分：他不會因為怕受傷就學會算計，他就是這樣的人。在一個人人都在算的時代，他的不算才是真的稀有。`,
+    advice: `今年練一句萬用話：當你覺得對方在繞圈子、暗示、講話有意思的時候，直接問——「你的意思是什麼？我聽不懂暗示，可以直接說嗎？」這句話會嚇到一些人，但會幫你篩掉不適合的關係，留下值得的。`,
+    suit: `你適合——找一個聲音清脆的風鈴，把自己時時拉回當下。`
+  }
+};
+
+// ========================================
+// STATE
+// ========================================
+
+const state = {
+  scene: 'title',
+  questionIndex: 0,
+  scores: { E:0, I:0, J:0, P:0, S:0, N:0, T:0, F:0 },
+  shuffledQuestions: [],
+  answerHistory: [], // each entry: { pol, polScore, revScore }
+  typewriterTimer: null,
+  isTyping: false,
+  currentText: '',
+  currentCallback: null
+};
+
+// ========================================
+// SHUFFLE: avoid 4 consecutive same dimension
+// ========================================
+
+function shuffleQuestions(qs) {
+  const buckets = { EI: [], JP: [], SN: [], TF: [] };
+  qs.forEach(q => buckets[q.dim].push(q));
+  Object.values(buckets).forEach(b => {
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+  });
+
+  const result = [];
+  let lastDims = [];
+  while (result.length < qs.length) {
+    let candidates = Object.keys(buckets).filter(d => buckets[d].length > 0);
+    // exclude dim that would create 4-in-a-row
+    if (lastDims.length >= 3 && lastDims[0] === lastDims[1] && lastDims[1] === lastDims[2]) {
+      const blocked = lastDims[0];
+      const filtered = candidates.filter(d => d !== blocked);
+      if (filtered.length > 0) candidates = filtered;
+    }
+    // prefer larger buckets to spread out
+    candidates.sort((a, b) => buckets[b].length - buckets[a].length);
+    // small randomness within top 2
+    const pick = candidates[Math.floor(Math.random() * Math.min(2, candidates.length))];
+    result.push(buckets[pick].pop());
+    lastDims.push(pick);
+    if (lastDims.length > 3) lastDims.shift();
+  }
+  return result;
+}
+
+// ========================================
+// TYPEWRITER
+// ========================================
+
+function typewrite(text, callback) {
+  const el = document.getElementById('dialogue');
+  if (!el) return;
+  state.currentText = text;
+  state.currentCallback = callback;
+  state.isTyping = true;
+  el.classList.add('typing');
+  el.innerHTML = '<span class="cursor"></span>';
+  let i = 0;
+  let displayed = '';
+
+  function tick() {
+    if (i >= text.length) {
+      state.isTyping = false;
+      el.classList.remove('typing');
+      el.innerHTML = textToHtml(displayed);
+      if (state.currentCallback) state.currentCallback();
+      return;
+    }
+    const ch = text[i];
+    displayed += ch;
+    el.innerHTML = textToHtml(displayed) + '<span class="cursor"></span>';
+    i++;
+    let delay = 32;
+    if ('，、'.includes(ch)) delay = 80;
+    if ('。？！'.includes(ch)) delay = 140;
+    if ('「『'.includes(ch)) delay = 50;
+    if (ch === '\n') delay = 180;
+    state.typewriterTimer = setTimeout(tick, delay);
+  }
+  tick();
+}
+
+function skipTypewriter() {
+  if (!state.isTyping) return;
+  if (state.typewriterTimer) {
+    clearTimeout(state.typewriterTimer);
+    state.typewriterTimer = null;
+  }
+  state.isTyping = false;
+  const el = document.getElementById('dialogue');
+  el.classList.remove('typing');
+  el.innerHTML = textToHtml(state.currentText);
+  if (state.currentCallback) state.currentCallback();
+}
+
+function textToHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>');
+}
+
+// ========================================
+// SCENE RENDERING
+// ========================================
+
+function renderTitleScreen() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="title-screen">
+      <div class="seal">2026　火 馬 年 特 輯</div>
+      <h1>冒險者咖啡廳</h1>
+      <div class="subtitle">1 6 型 人 格 　對 話 遊 戲</div>
+      <div class="desc">歡迎登島，你準備好開啟第二人生了嗎？<br>隱身都市的木造咖啡廳。<br>有一道溫暖的光，從吧台斜上方映射進來，<br>靜靜地，邀請你走近。</div>
+      <button class="start-btn" onclick="startGame()">推 開 那 扇 門</button>
+    </div>
+  `;
+}
+
+function renderGameLayout() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="back-bar"><button class="back-btn" id="back-btn" onclick="goBackQuestion()">← 上一題</button></div>
+    <div class="orb-container"><div class="orb"></div></div>
+    <div class="dialogue" id="dialogue"></div>
+    <div class="choices" id="choices"></div>
+  `;
+}
+
+function startGame() {
+  state.shuffledQuestions = shuffleQuestions(QUESTIONS);
+  renderGameLayout();
+  showOpening();
+}
+
+function showOpening() {
+  state.scene = 'opening';
+  hideChoices();
+  setBackButton(false);
+  typewrite(SCENES.opening, () => {
+    showChoices([
+      { text: '開始吧', action: startQuestions },
+      { text: '等等，我想先點杯咖啡', action: showCoffee }
+    ]);
+  });
+}
+
+function showCoffee() {
+  hideChoices();
+  setBackButton(false);
+  typewrite(SCENES.coffee, () => {
+    showChoices([{ text: '好，開始吧', action: startQuestions }]);
+  });
+}
+
+function startQuestions() {
+  state.scene = 'question';
+  state.questionIndex = 0;
+  showCurrentQuestion();
+}
+
+function showCurrentQuestion() {
+  hideChoices();
+  setBackButton(state.questionIndex > 0);
+  const q = state.shuffledQuestions[state.questionIndex];
+  updateProgress();
+  typewrite(q.text, () => {
+    showChoices([
+      { text: '對，就是我',  action: () => answerQuestion(0) },
+      { text: '嗯，有點像',  action: () => answerQuestion(1) },
+      { text: '不太對欸',    action: () => answerQuestion(2) },
+      { text: '完全不是',    action: () => answerQuestion(3) }
+    ]);
+  });
+}
+
+function setBackButton(show) {
+  const btn = document.getElementById('back-btn');
+  if (btn) btn.style.visibility = show ? 'visible' : 'hidden';
+}
+
+function answerQuestion(choiceIndex) {
+  const q = state.shuffledQuestions[state.questionIndex];
+  const polScore = [3, 2, 1, 0][choiceIndex];
+  const revScore = [0, 1, 2, 3][choiceIndex];
+  state.scores[q.pol] += polScore;
+  state.scores[reverseOf(q.pol)] += revScore;
+  state.answerHistory[state.questionIndex] = { pol: q.pol, polScore, revScore };
+  state.questionIndex++;
+
+  if (state.questionIndex === 16) showBreak(SCENES.break1, '繼續');
+  else if (state.questionIndex === 32) showBreak(SCENES.break2, '繼續');
+  else if (state.questionIndex === 48) showBreak(SCENES.break3, '開始最後一段');
+  else if (state.questionIndex >= state.shuffledQuestions.length) showClosing();
+  else showCurrentQuestion();
+}
+
+function goBackQuestion() {
+  if (state.questionIndex === 0) return;
+  state.questionIndex--;
+  // Roll back the score from the previous answer
+  const prev = state.answerHistory[state.questionIndex];
+  if (prev) {
+    state.scores[prev.pol] -= prev.polScore;
+    state.scores[reverseOf(prev.pol)] -= prev.revScore;
+  }
+  showCurrentQuestion();
+}
+
+function showBreak(text, btnText) {
+  hideChoices();
+  setBackButton(false);
+  typewrite(text, () => {
+    showChoices([{ text: btnText, action: showCurrentQuestion }]);
+  });
+}
+
+function showClosing() {
+  state.scene = 'closing';
+  hideChoices();
+  setBackButton(false);
+  typewrite(SCENES.closing, () => {
+    showChoices([{ text: '我準備好了', action: showResult }]);
+  });
+}
+
+function showResult() {
+  state.scene = 'result';
+  const type = calculateType();
+  const result = RESULTS[type];
+
+  const ePct = Math.round(state.scores.E / 48 * 100);
+  const sPct = Math.round(state.scores.S / 48 * 100);
+  const tPct = Math.round(state.scores.T / 48 * 100);
+  const jPct = Math.round(state.scores.J / 48 * 100);
+
+  document.getElementById('progress-bar').style.width = '100%';
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="result">
+      <div class="result-image">
+        <span class="ph">[ ${result.name} ]</span>
+        <img src="images/${type}.jpg" alt="${result.name}" onerror="this.style.display='none'">
+      </div>
+      <div class="result-name">${result.name}</div>
+      <div class="result-mbti">${type.split('').join(' ')}</div>
+      <div class="result-tag">${result.tag}</div>
+
+      <div class="result-section">
+        <h3>光 的 話</h3>
+        <div class="divider"></div>
+        <div class="body">${formatBody(result.reveal)}</div>
+      </div>
+
+      <div class="result-section">
+        <h3>你 是 誰</h3>
+        <div class="divider"></div>
+        <div class="body">${formatBody(result.who)}</div>
+      </div>
+
+      <div class="result-section">
+        <h3>火 馬 年 的 提 醒</h3>
+        <div class="divider"></div>
+        <div class="body">${formatBody(result.advice)}</div>
+      </div>
+
+      <div class="result-section">
+        <h3>你 適 合</h3>
+        <div class="divider"></div>
+        <div class="body">${formatBody(result.suit)}</div>
+      </div>
+
+      <div class="scores">
+        ${scoreBar('E', 'I', ePct, 100 - ePct)}
+        ${scoreBar('S', 'N', sPct, 100 - sPct)}
+        ${scoreBar('T', 'F', tPct, 100 - tPct)}
+        ${scoreBar('J', 'P', jPct, 100 - jPct)}
+      </div>
+
+      <div class="feedback-section">
+        <h3>留 下 你 的 足 跡</h3>
+        <div class="divider"></div>
+        <form class="feedback-form" id="feedback-form" onsubmit="submitFeedback(event, '${type}')">
+          <input type="text" class="fb-input" name="name" placeholder="怎麼稱呼你" required>
+          <input type="email" class="fb-input" name="email" placeholder="Email" required>
+          <textarea class="fb-input fb-textarea" name="message" placeholder="你有什麼想說的呢" rows="3"></textarea>
+          <button type="submit" class="fb-submit" id="fb-submit-btn">送 出</button>
+        </form>
+      </div>
+
+      <div class="result-actions">
+        <button class="result-btn" onclick="location.reload()">重 新 測 驗</button>
+        <button class="result-btn" onclick="shareResult('${type}', '${result.name}', '${result.tag}')">複 製 結 果</button>
+      </div>
+    </div>
+  `;
+
+  // Animate score bars
+  setTimeout(() => {
+    document.querySelectorAll('.score-row .fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 200);
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function scoreBar(left, right, leftPct) {
+  // Determine which side wins to highlight
+  const winner = leftPct >= 50 ? 'left' : 'right';
+  const winningPct = winner === 'left' ? leftPct : (100 - leftPct);
+  const fillFromLeft = winner === 'left' ? leftPct : 0;
+  const fillWidth = winner === 'left' ? leftPct : (100 - leftPct);
+  return `<div class="score-row">
+    <span class="lbl">${left}</span>
+    <div class="bar"><div class="fill" data-pct="${winner === 'left' ? leftPct : 100 - leftPct}" style="${winner === 'right' ? 'right:0;left:auto;' : ''}"></div></div>
+    <span class="lbl">${right}</span>
+    <span class="pct">${winningPct}%</span>
+  </div>`;
+}
+
+function formatBody(text) {
+  // Wrap each paragraph (split by \n\n) in <p>
+  return text.split(/\n\n+/).map(p => `<p>${textToHtml(p).replace(/<br>/g, '<br>')}</p>`).join('');
+}
+
+function reverseOf(pol) {
+  return { E:'I', I:'E', J:'P', P:'J', S:'N', N:'S', T:'F', F:'T' }[pol];
+}
+
+function calculateType() {
+  // tie rule: prefer reverse (I/N/F/P)
+  const ei = state.scores.E > state.scores.I ? 'E' : 'I';
+  const sn = state.scores.S > state.scores.N ? 'S' : 'N';
+  const tf = state.scores.T > state.scores.F ? 'T' : 'F';
+  const jp = state.scores.J > state.scores.P ? 'J' : 'P';
+  return ei + sn + tf + jp;
+}
+
+function shareResult(type, name, tag) {
+  const text = `我在《冒險者咖啡廳｜16型人格 對話遊戲》得到的結果是：\n\n${name}（${type}）\n${tag}\n\n2026 火馬年特輯，你也來看看自己吧。`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(
+      () => showToast('已複製到剪貼簿'),
+      () => showToast('複製失敗，請手動截圖')
+    );
+  } else {
+    showToast('複製失敗，請手動截圖');
+  }
+}
+
+function submitFeedback(event, mbtiType) {
+  event.preventDefault();
+  const form = event.target;
+  const btn = document.getElementById('fb-submit-btn');
+  const formData = new FormData();
+  formData.append('entry.233839242', form.name.value);
+  formData.append('entry.815150300', form.email.value);
+  formData.append('entry.1567987287', mbtiType);
+  formData.append('entry.576889558', form.message.value);
+
+  btn.disabled = true;
+  btn.textContent = '送 出 中 ...';
+
+  // Google Forms doesn't support CORS so we use no-cors mode.
+  // We can't read the response, but the data still gets submitted.
+  fetch('https://docs.google.com/forms/d/e/1FAIpQLScKlS-1uLSm9lts03JjDdMvFXB4aVbV0YyUb_KGEjXDxQp_eA/formResponse', {
+    method: 'POST',
+    mode: 'no-cors',
+    body: formData
+  }).then(() => {
+    btn.textContent = '已 收 到 ， 謝 謝 你  ✓';
+    form.querySelectorAll('.fb-input').forEach(el => el.disabled = true);
+    showToast('感謝你的回饋');
+  }).catch(() => {
+    btn.disabled = false;
+    btn.textContent = '送 出';
+    showToast('送出失敗，請稍後再試');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showChoices(choices) {
+  const el = document.getElementById('choices');
+  if (!el) return;
+  el.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = c.text;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      c.action();
+    });
+    el.appendChild(btn);
+  });
+  setTimeout(() => el.classList.add('show'), 80);
+}
+
+function hideChoices() {
+  const el = document.getElementById('choices');
+  if (el) el.classList.remove('show');
+}
+
+function updateProgress() {
+  const pct = (state.questionIndex / 64) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ========================================
+// EVENT BINDINGS
+// ========================================
+
+document.addEventListener('click', (e) => {
+  if (state.isTyping && !e.target.closest('.choice') && !e.target.closest('.start-btn') && !e.target.closest('.result-btn')) {
+    skipTypewriter();
+  }
+});
+
+// Keyboard support: Space/Enter to skip or advance
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ' || e.key === 'Enter') {
+    if (state.isTyping) {
+      skipTypewriter();
+      e.preventDefault();
+    }
+  }
+});
+
+// ========================================
+// INIT
+// ========================================
+
+renderTitleScreen();
+</script>
+</body>
+</html>
